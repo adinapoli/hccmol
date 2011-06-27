@@ -15,16 +15,18 @@ class Atom:
         self.coords = coords
         self.batches = None
         self.volume = None
+        self.base = None
 
         
     def build(self):
         self.graph = hexsphere()
-        self.batches = smart_hccbatches(self)
+        self.base = Plasm.getBatches(Hpc(self.graph))[0]
+        self.batches = smart_hccbatches(self, self.base)
 
         
-    def clone(self, graph):
-        self.graph = Graph(graph)
-        self.batches = smart_hccbatches(self)
+    def clone(self, atom):
+        self.graph = Graph(atom.graph)
+        self.batches = smart_hccbatches(self, atom.base)
 
         
     def view(self):
@@ -54,18 +56,18 @@ class Molecule:
         """Il trucco e' copiare il grafo invece di
         computarne uno nuovo. All'inizio, tutte le palle
         sono uguali!"""
-        graph = get_trigraph(self.filename)
-        it = izip(graph[2], graph[0])
+        graph = get_complex(self.filename)
+        it = izip(graph[1], graph[0])
         first_pair = it.next()
         first_atom = Atom(first_pair[0], first_pair[1])
         first_atom.build()
 
         self.atoms = [Atom(i[0], i[1]) for i in it]
         for a in self.atoms:
-            a.clone(first_atom.graph)
+            a.clone(first_atom)
         self.atoms.insert(0, first_atom)
 
-        add = self.batches.extend
+        add = self.batches.append
         for a in self.atoms:
             add(a.batches)
 
@@ -90,10 +92,10 @@ class Molecule:
 if __name__ == "__main__":
 
     start = time.clock()
-    glu = Molecule("APT.pdb")
+    glu = Molecule("3NK2.pdb")
     glu.build()
     end = time.clock()
 
     print "Molecule builded in ", end - start, " seconds."
     glu.view()
-    glu.volview()
+    #glu.volview()

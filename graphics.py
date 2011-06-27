@@ -142,21 +142,28 @@ def view_compound(batches):
     viewer.Run()
 
 
-def smart_hccbatches(atom):
+def smart_hccbatches(atom, base = None):
 
     g = atom.graph
     color = atom.color
     coords = atom.coords
     sf = atom.scale
-    h = Hpc(g)
-    batches = Plasm.getBatches(h)
 
-    for b in batches:
+    if not base:
+        h = Hpc(g)
+        batches = Plasm.getBatches(h)
+
+        for b in batches:
+            b.diffuse = color
+            b.matrix = Mat4f.translate(*coords) * Mat4f.scale(sf, sf, sf) * b.matrix
+
+        return batches
+
+    else:
+        b = Batch(base)
         b.diffuse = color
         b.matrix = Mat4f.translate(*coords) * Mat4f.scale(sf, sf, sf) * b.matrix
-
-
-    return batches
+        return b
 
 
 def MOLVIEW(batches):

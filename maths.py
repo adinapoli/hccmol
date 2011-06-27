@@ -63,6 +63,25 @@ def get_trigraph(filename):
     return nodes, get_connection_arcs(filename), labels
 
 
+def get_complex(filename):
+    """Questa funzione dovrebbe essere talmente generica da
+    visualizzare qualsiasi file .PDB"""
+
+    parser = SafePDBParser()
+    structure = parser.get_structure('molecule', filename)
+
+    nodes = []
+    labels = []
+    for model in structure.get_list():
+        for chain in model.get_list():
+            for residue in chain.get_list():
+                nodes.extend([atom.get_coord().tolist() for atom in residue])
+                labels.extend([atom.get_id() for atom in residue])
+
+    return nodes, labels
+
+
+
 def get_atoms(filename):
 
     parser = SafePDBParser()
